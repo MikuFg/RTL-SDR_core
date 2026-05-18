@@ -1,0 +1,117 @@
+# Конфигурация RTL-SDR Radar System
+
+# Настройки RTL-SDR приемника
+rtl_sdr:
+  # Параметры по умолчанию
+  default:
+    center_freq: 433.92e6  # 433.92 МГц
+    sample_rate: 2.048e6   # 2.048 МГц
+    gain: "auto"
+    bandwidth_ratio: 0.95  # Соотношение полосы пропускания к частоте дискретизации
+  
+  # Предустановки для разных частот
+  presets:
+    aircraft:
+      center_freq: 1090e6   # 1090 МГц - ADS-B (самолеты)
+      sample_rate: 2.0e6
+      gain: "auto"
+      description: "Мониторинг самолетов (ADS-B)"
+    
+    weather:
+      center_freq: 1660e6   # 1660 МГц - метеорологические спутники
+      sample_rate: 2.4e6
+      gain: "auto"
+      description: "Метеорологические спутники"
+    
+    radio:
+      center_freq: 88e6     # 88 МГц - FM радио
+      sample_rate: 2.4e6
+      gain: "auto"
+      description: "FM радио станции"
+    
+    drone:
+      center_freq: 433.92e6 # 433.92 МГц - дроны/пульты
+      sample_rate: 2.048e6
+      gain: "auto"
+      description: "Дроны и пульты управления"
+    
+    custom:
+      center_freq: 100e6    # 100 МГц - настраиваемый
+      sample_rate: 2.048e6
+      gain: "auto"
+      description: "Настраиваемая частота"
+
+# Настройки обработки сигналов
+signal_processing:
+  sample_rate: 44100        # Частота дискретизации для микрофона
+  fft_size: 1024            # Размер FFT
+  window_type: "hann"       # Тип окна (hann, hamming, blackman)
+  
+  # Параметры фильтрации
+  filter:
+    low_freq: 100           # Нижняя частота фильтра (Гц)
+    high_freq: 8000         # Верхняя частота фильтра (Гц)
+    filter_order: 4         # Порядок фильтра Баттерворта
+  
+  # Параметры спектрограммы
+  spectrogram:
+    nperseg: 1024           # Размер сегмента
+    noverlap: 512           # Перекрытие сегментов
+  
+  # Параметры преобразования в изображение
+  image:
+    size: [256, 256]        # Размер изображения (ширина, высота)
+    resampling: "LANCZOS"   # Метод ресемплинга
+
+# Настройки нейросети
+model:
+  model_path: "radar_model_v2.pth"  # Путь к модели
+  device: "cpu"                     # Устройство (cpu, cuda)
+  confidence_threshold: 0.8
+  
+# Настройки серверов
+servers:
+  go_server:
+    url: "http://localhost:8080/update"
+    timeout: 0.1                    # Таймаут в секундах
+  
+  websocket:
+    url: "ws://localhost:8080/ws"
+    reconnect_attempts: 3          # Количество попыток переподключения
+
+# Настройки симуляции
+simulation:
+  num_targets: 5                   # Количество целей
+  cycle_delay: 0.1                 # Задержка между циклами (секунды)
+  save_interval: 50                # Интервал сохранения результатов (циклы)
+  
+  # Диапазоны движения целей
+  target_ranges:
+    azimuth: [0, 360]              # Азимут (градусы)
+    range: [500, 9500]             # Дальность (метры)
+    altitude: [50, 5000]           # Высота (метры)
+  
+  # Скорости движения целей
+  target_speeds:
+    azimuth: [-0.8, 0.8]           # Скорость изменения азимута
+    range: [-20, 20]               # Скорость изменения дальности
+    altitude: [-5, 5]              # Скорость изменения высоты
+
+# Настройки путей к данным
+paths:
+  test_data: "data_v2/val"         # Путь к тестовым данным
+  output_dir: "results"            # Директория для сохранения результатов
+  signal_files: "signal_data"      # Директория для файлов сигналов
+
+# Настройки режима реального времени
+realtime:
+  capture_duration: 0.2            # Длительность захвата сигнала (секунды)
+  processing_interval: 1.0        # Интервал обработки (секунды)
+  auto_save: true                 # Автоматическое сохранение результатов
+
+# Логирование
+logging:
+  level: "INFO"                   # Уровень логирования (DEBUG, INFO, WARNING, ERROR)
+  console_output: true            # Вывод в консоль
+  file_output: false              # Вывод в файл
+  log_file: "radar_system.log"    # Путь к файлу логов
